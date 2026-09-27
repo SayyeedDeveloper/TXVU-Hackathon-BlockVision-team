@@ -1,0 +1,22 @@
+# --- harness deps (run_submission.py / evaluate.py) ---
+# numpy pinned <2: torch 2.2.x's compiled extensions are built against the
+# NumPy 1.x ABI and crash on import under NumPy 2.x (`_ARRAY_API not found`).
+# Revisit this pin only alongside a torch upgrade that's verified numpy2-safe.
+numpy>=1.24,<2
+# opencv-python-headless pinned <4.12: 4.12.0.88+ requires numpy>=2 on
+# Python>=3.9 (confirmed via PyPI metadata), which directly conflicts with the
+# numpy<2 pin above. 4.11.0.86 is the newest version confirmed to still accept numpy<2.
+opencv-python-headless>=4.10.0,<4.12
+
+# --- our detector+tracker pipeline (solution.py / src/) ---
+# CPU wheels install fine on the dev Mac for smoke tests; Colab/Kaggle already
+# ship a CUDA-enabled torch, so `pip install -r requirements.txt` there just
+# reuses it. Pin ultralytics for deterministic NMS/tracker behavior across envs.
+torch>=2.2
+torchvision>=0.17
+ultralytics==8.3.40
+imageio-ffmpeg==0.6.0  # bundled static ffmpeg binary (no system install): src/video_io.py
+                       # decodes the 4K 10-bit 4:2:2 footage ~4x faster than cv2 read()
+lapx>=0.5.2   # ByteTrack's assignment solver; ultralytics auto-installs this at
+              # runtime if missing, which silently needs internet — pin it here
+              # so `pip install -r requirements.txt` covers it up front instead.

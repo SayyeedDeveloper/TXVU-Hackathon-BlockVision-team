@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+.venv/
+.idea/
+.DS_Store
+
+# sample videos and their Label Studio proxies (large; provided by the organisers)
+samples/
+*.mp4
+*.MP4
+
+# local run outputs other than the committed sample predictions
+predictions*.json
+!predictions_samples.json
+*.pkl
+*.npy
+*.npz

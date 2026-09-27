@@ -1,0 +1,20 @@
+<View>
+  <Header value="Select a class, then drag on the timeline (start -> end). Same-class events that overlap are one segment."/>
+  <TimelineLabels name="events" toName="video">
+    <Label value="accident"            hint="Start: first frame with visible contact. End: all involved stop moving or leave frame" background="#d62728"/>
+    <Label value="near_miss"           hint="Start: onset of braking/swerving. End: road users clear of each other" background="#ff7f0e"/>
+    <Label value="red_light"           hint="Start: vehicle front crosses stop line on red. End: leaves intersection/frame" background="#e377c2"/>
+    <Label value="wrong_way"           hint="Start: enters opposing lane. End: back in correct lane or leaves frame" background="#8c564b"/>
+    <Label value="illegal_u_turn"      hint="Start: starts turning. End: completes the turn" background="#9467bd"/>
+    <Label value="stopped_vehicle"     hint="Stationary on carriageway >= 10 s, not queued at signal. Start: stops. End: moves or removed" background="#1f77b4"/>
+    <Label value="jaywalking"          hint="Start: pedestrian steps onto road outside a crossing. End: leaves the road" background="#2ca02c"/>
+    <Label value="failure_to_yield"    hint="Start: vehicle enters crossing while pedestrian on it. End: vehicle leaves crossing" background="#bcbd22"/>
+    <Label value="illegal_turn"        hint="Start: starts turning. End: completes the turn" background="#17becf"/>
+    <Label value="solid_line_crossing" hint="Start: wheel crosses the solid line. End: fully in the new lane" background="#7f7f7f"/>
+    <Label value="stop_line"           hint="Stops past stop line on red, not entering. Start: vehicle stops. End: signal turns green" background="#aec7e8"/>
+    <Label value="congestion"          hint="Standstill/crawl across all lanes of a direction. Start: queue stops moving. End: queue clears" background="#ffbb78"/>
+    <Label value="road_obstacle"       hint="Debris/animal/fallen object. Start: appears. End: removed" background="#98df8a"/>
+    <Label value="fire_smoke"          hint="Start: first visible smoke. End: smoke clears or video ends" background="#ff9896"/>
+  </TimelineLabels>
+  <Video name="video" value="$video" frameRate="29.97" timelineHeight="120"/>
+</View>
