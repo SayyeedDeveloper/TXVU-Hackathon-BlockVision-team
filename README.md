@@ -69,9 +69,51 @@ skipped frames before colour conversion (~95 fps on our laptop).
 
 ## Results on the sample videos
 
-_Filled in from `evaluate.py --per-video` against `my_labels.json`._
+Scored with the official `evaluate.py` against **our own labels** of the four
+sample videos (`my_labels.json`, 59 events, labelled in Label Studio with the
+task's start/end conventions). Thresholds were tuned on C3896, C3897 and C3905;
+**C3902 was held out** (it also has a different camera framing).
 
-RESULTS_PLACEHOLDER
+| Class | F1@0.3 | F1@0.5 | F1@0.7 | mean | TP/FP/FN @0.5 |
+|---|---|---|---|---|---|
+| congestion | 0.800 | 0.800 | 0.400 | **0.667** | 2/1/0 |
+| jaywalking | 0.525 | 0.230 | 0.066 | **0.273** | 7/22/25 |
+| red_light | 0.182 | 0.182 | 0.000 | 0.121 | 1/9/0 |
+| stopped_vehicle | 0.182 | 0.182 | 0.000 | 0.121 | 1/8/1 |
+| failure_to_yield | 0.114 | 0.000 | 0.000 | 0.038 | 0/28/7 |
+| illegal_turn, illegal_u_turn, near_miss, solid_line_crossing, stop_line | 0 | 0 | 0 | 0 | missed (in labels, not detected) |
+
+**Score A = 0.122** on the dev labels (0.049 before tuning). Held-out
+jaywalking F1 rose from 0.262 to 0.319 with the tuned settings, so the tuning
+generalises rather than memorising the three tuning videos. Part B is not scored
+on the samples: none of them contains an accident.
+
+**What was tuned** (`src/config.py` thresholds, `src/postprocess.py` `CLASS_PARAMS`):
+congestion now needs ≥ 12 slow vehicles (4 fired on every red-light queue);
+jaywalking ignores < 3 s on the road and < 4 s segments; per-class merge gaps
+join the per-object fragments into one event, matching the annotation convention.
+Classes whose rules produced only false alarms (near_miss, wrong_way,
+illegal_u_turn) are removed from `CLASSES`, which the task allows.
+
+**Runtime** on our laptop (RTX 5060, `run_submission.py`, budget = 3× duration):
+
+| Video | Duration | Part A | Part B | Total |
+|---|---|---|---|---|
+| C3896 | 340 s | 234 s | 485 s | 2.1× |
+| C3897 | 318 s | 194 s | 452 s | 2.0× |
+| C3902 | 318 s | 230 s | 491 s | 2.3× |
+| C3905 | 128 s | 70 s | 111 s | 1.4× |
+
+Part A times are from before the tuning, which also dropped the slow pairwise
+near_miss rule (C3905 Part A: 70 s → 44 s). Most of Part B is the harness's own
+`cv2` decode of every 4K 10-bit frame (~1.2× real time), which we cannot change.
+
+**Honest failure cases.** failure_to_yield fires on many vehicle–pedestrian
+overlaps that are not violations (28 false alarms); stop_line, illegal_turn and
+solid_line_crossing are never detected (the scene has no solid-line or
+turn-restriction geometry yet); scene geometry is hand-drawn per camera framing
+and matched by file name, so a test video with an unseen framing falls back to
+C3896's layout.
 
 ## Determinism
 

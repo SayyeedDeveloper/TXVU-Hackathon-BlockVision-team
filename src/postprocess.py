@@ -72,6 +72,20 @@ def dedupe_overlaps_same_class(events: list[Event]) -> list[Event]:
     return out
 
 
+# Per-class (merge_gap_sec, min_dur_sec), overriding the defaults below. Rules emit
+# one segment per object, but the annotation convention is one segment per event
+# ("two of the same class at once -> one segment covering both"), and real events
+# of different classes have very different lengths. Tuned on our dev labels
+# (my_labels.json), see README "Results".
+CLASS_PARAMS: dict[str, tuple[float, float]] = {
+    "jaywalking": (1.0, 4.0),
+    "congestion": (10.0, 20.0),
+    "failure_to_yield": (2.0, 0.5),
+    "red_light": (3.0, 0.5),
+    "stopped_vehicle": (1.0, 12.0),
+}
+
+
 def postprocess_events(
     events: list[Event],
     duration: float,
@@ -79,10 +93,14 @@ def postprocess_events(
     merge_gap: float = 1.0,
 ) -> list[Event]:
     """Full boundary-cleanup pipeline: dedupe overlaps -> merge close fragments
-    -> drop sub-threshold blips -> clip to [0, duration] -> sort."""
+    -> drop sub-threshold blips -> clip to [0, duration] -> sort. Merge gap and
+    minimum duration are per class (CLASS_PARAMS), falling back to the args."""
     events = dedupe_overlaps_same_class(events)
-    events = merge_close_segments(events, max_gap=merge_gap)
-    events = drop_short_segments(events, min_dur=min_dur)
-    events = clip_to_duration(events, duration)
-    events.sort(key=lambda x: (x[0], x[2]))
-    return events
+    out: list[Event] = []
+    for label in {e[2] for e in events}:
+        gap, dur = CLASS_PARAMS.get(label, (merge_gap, min_dur))
+        segs = [e for e in events if e[2] == label]
+        out += drop_short_segments(merge_close_segments(segs, max_gap=gap), min_dur=dur)
+    out = clip_to_duration(out, duration)
+    out.sort(key=lambda x: (x[0], x[2]))
+    return out

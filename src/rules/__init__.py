@@ -42,15 +42,18 @@ RULES = {
 }
 
 
-def run_all_rules(trajectories, scene, duration: float | None = None) -> list[list]:
-    """Run every rule and pool the results. Errors in one rule don't take down
-    the others — solution.detect_events() still needs to return whatever it can."""
+def run_all_rules(trajectories, scene, duration: float | None = None, labels=None) -> list[list]:
+    """Run every rule (or only those in `labels`) and pool the results. Errors in
+    one rule don't take down the others — solution.detect_events() still needs to
+    return whatever it can."""
     from src.detect import group_by_track
 
     by_track = trajectories if isinstance(trajectories, dict) else group_by_track(trajectories)
 
     events: list[list] = []
     for label, fn in RULES.items():
+        if labels is not None and label not in labels:
+            continue
         try:
             events.extend(fn(by_track, scene))
         except Exception as exc:  # keep one bad rule from killing the whole video

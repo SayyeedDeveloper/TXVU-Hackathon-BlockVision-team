@@ -28,14 +28,13 @@ from src.rules import run_all_rules
 from src.rules.traffic_light import LightHistory, light_crop_box
 from src.video_io import even_box, iter_sampled_frames, probe
 
-# Official class ids (14). See the task description for definitions and
-# start/end conventions. Remove entries you never predict; never add.
+# Official class ids we predict. The task allows removing classes we never predict;
+# every predicted class that doesn't occur in the test set adds a 0 to Score A, so
+# classes whose rules only produced false alarms on our dev labels are left out:
+# near_miss, wrong_way, illegal_u_turn (see README "Results").
 CLASSES: list[str] = [
     "accident",            # collision between road users / with a fixed object
-    "near_miss",           # sharp braking or swerving to avoid a collision, no contact
     "red_light",           # crossing the stop line on red
-    "wrong_way",           # driving against the traffic direction / in the oncoming lane
-    "illegal_u_turn",      # U-turn where prohibited
     "stopped_vehicle",     # stationary on the carriageway >= 10 s, not queued at a signal
     "jaywalking",          # pedestrian on the carriageway outside a crossing
     "failure_to_yield",    # driving through a crossing while a pedestrian is on it
@@ -94,7 +93,7 @@ def detect_events(video_path: str) -> list[list]:
     trajectories = group_by_track(points)
     scene.light_history = lights.history if lights is not None else {}
 
-    raw_events = run_all_rules(trajectories, scene, meta.duration)
+    raw_events = run_all_rules(trajectories, scene, meta.duration, labels=CLASSES)
     return postprocess_events(raw_events, meta.duration)
 
 

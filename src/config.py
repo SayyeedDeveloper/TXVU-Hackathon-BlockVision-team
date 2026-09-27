@@ -156,10 +156,10 @@ class SceneConfig:
         "stopped_speed_px_s": 5.0,          # below this = "not moving"
         "stopped_vehicle_min_sec": 10.0,    # stopped_vehicle class definition
         "queue_stop_line_dist_px": 60.0,    # "waiting at the stop line" radius
-        "congestion_speed_px_s": 8.0,
-        "congestion_min_vehicles": 4,
+        "congestion_speed_px_s": 15.0,    # tuned on dev labels (was 8)
+        "congestion_min_vehicles": 12,    # tuned: 4 fired on every red-light queue
         "congestion_min_sec": 5.0,
-        "jaywalk_min_sec": 1.0,
+        "jaywalk_min_sec": 3.0,            # tuned (was 1): brief kerb steps are noise
         "u_turn_window_sec": 4.0,
         "u_turn_min_angle_deg": 150.0,
         "wrong_way_min_angle_deg": 150.0,
