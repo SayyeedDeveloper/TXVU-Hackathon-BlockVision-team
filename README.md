@@ -18,7 +18,10 @@ python evaluate.py --pred predictions.json --validate-only
 5 GB limit), loaded by absolute path from `solution.py`, so the run needs no
 internet. `weights/download.sh` only re-fetches that same file if it is ever
 missing. **ffmpeg** comes from the `imageio-ffmpeg` wheel (a bundled static
-binary), so no system install is needed either.
+binary), so no system install is needed either. `third_party/opencv-python-stub`
+keeps `pip` from installing the non-headless OpenCV that ultralytics asks for,
+whose `cv2` needs `libGL.so.1` and crashes on headless Linux servers (verified in a
+clean `python:3.12-slim` container).
 
 Reproduce our sample-video output and score it against our own labels:
 ```bash

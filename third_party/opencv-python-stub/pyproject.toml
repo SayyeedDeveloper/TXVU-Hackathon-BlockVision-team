@@ -1,0 +1,17 @@
+# Placeholder distribution named "opencv-python". ultralytics requires
+# "opencv-python", whose cv2 needs the system library libGL.so.1 and crashes on
+# headless Linux servers without it. Installing this stub (from requirements.txt)
+# satisfies that requirement with opencv-python-headless instead, so only the
+# headless cv2 is ever installed. It contains no code.
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "opencv-python"
+version = "4.11.0.86"
+description = "Placeholder: satisfies ultralytics' opencv-python requirement with opencv-python-headless"
+dependencies = ["opencv-python-headless>=4.10.0,<4.12"]
+
+[tool.setuptools]
+packages = []
